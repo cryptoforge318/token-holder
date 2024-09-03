@@ -1,0 +1,8 @@
+{
+  "mainnet": {
+    "spectre-ai": {
+      "address": "0x9cf0ed013e67db12ca3af8e7506fe401aa14dad6",
+      "startBlock": 0
+    }
+  }
+}
