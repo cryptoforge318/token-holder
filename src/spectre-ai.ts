@@ -1,52 +1,30 @@
-import {
-  Approval as ApprovalEvent,
-  OwnershipTransferred as OwnershipTransferredEvent,
-  Transfer as TransferEvent
-} from "../generated/spectre-ai/spectre-ai"
-import { Approval, OwnershipTransferred, Transfer } from "../generated/schema"
+import { BigInt } from "@graphprotocol/graph-ts";
+import { Transfer } from "../generated/spectre-ai/spectre_ai";
+import { Holder } from "../generated/schema";
 
-export function handleApproval(event: ApprovalEvent): void {
-  let entity = new Approval(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.owner = event.params.owner
-  entity.spender = event.params.spender
-  entity.value = event.params.value
+// Handle Transfer events
+export function handleTransfer(event: Transfer): void {
+  // Load or create the holder entity for the sender
+  let fromHolder = Holder.load(event.params.from.toHex());
+  if (fromHolder == null) {
+    fromHolder = new Holder(event.params.from.toHex());
+    fromHolder.address = event.params.from;
+    fromHolder.balance = BigInt.fromI32(0);
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  // Load or create the holder entity for the receiver
+  let toHolder = Holder.load(event.params.to.toHex());
+  if (toHolder == null) {
+    toHolder = new Holder(event.params.to.toHex());
+    toHolder.address = event.params.to;
+    toHolder.balance = BigInt.fromI32(0);
+  }
 
-  entity.save()
-}
+  // Update balances
+  fromHolder.balance = fromHolder.balance.minus(event.params.value);
+  toHolder.balance = toHolder.balance.plus(event.params.value);
 
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleTransfer(event: TransferEvent): void {
-  let entity = new Transfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.from = event.params.from
-  entity.to = event.params.to
-  entity.value = event.params.value
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  // Save the updated entities
+  fromHolder.save();
+  toHolder.save();
 }
