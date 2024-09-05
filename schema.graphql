@@ -1,5 +1,15 @@
-type Holder @entity {
-  id: ID!
-  address: Bytes!
-  balance: BigInt!
+type HolderSnapshot @entity {
+  id: ID!                  # Unique identifier (timestamp)
+  timestamp: BigInt!        # Unix timestamp of the snapshot
+  holderCount: Int!         # Number of unique token holders at that timestamp
+}
+
+type TokenHolder @entity {
+  id: ID!                  # Unique identifier (wallet address)
+  balance: BigInt!         # Balance of the holder
+}
+
+type TotalHolderCount @entity {
+  id: ID!                  # Unique identifier, use a constant string like "total" to ensure only one instance
+  holderCount: Int!        # Current total number of unique token holders
 }
