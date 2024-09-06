@@ -1,15 +1,25 @@
 type HolderSnapshot @entity {
-  id: ID!                  # Unique identifier (timestamp)
+  id: ID!                  # Unique identifier (combination of token address and timestamp)
+  tokenAddress: Bytes!      # Address of the token
   timestamp: BigInt!        # Unix timestamp of the snapshot
   holderCount: Int!         # Number of unique token holders at that timestamp
 }
 
 type TokenHolder @entity {
-  id: ID!                  # Unique identifier (wallet address)
-  balance: BigInt!         # Balance of the holder
+  id: ID!                  # Unique identifier (combination of wallet address and token address)
+  tokenAddress: Bytes!      # Address of the token
+  balance: BigInt!          # Balance of the holder
 }
 
 type TotalHolderCount @entity {
-  id: ID!                  # Unique identifier, use a constant string like "total" to ensure only one instance
-  holderCount: Int!        # Current total number of unique token holders
+  id: ID!                   # Unique identifier (token address)
+  tokenAddress: Bytes!      # Address of the token
+  holderCount: Int!         # Current total number of unique token holders
+}
+
+type TokenPair @entity {
+  id: ID!                  # Unique identifier (pair address)
+  token0: Bytes!            # Address of token0
+  token1: Bytes!            # Address of token1
+  pairAddress: Bytes!       # Address of the pair (liquidity pool address)
 }
